@@ -1,3 +1,4 @@
+
 % code for creating the matrix used in function generateLego
 % The matrix defines the structure of the lego
 
