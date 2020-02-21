@@ -1,4 +1,4 @@
-function legos = generateLego(RGB);
+function legos = generateLego(RGB)
 % Takes in a M x 3 matrix containing RGB colors
 % Gives back a 1 x M cell array containing the legos
 % The legos are [30x30x3]-matrices in RGB
