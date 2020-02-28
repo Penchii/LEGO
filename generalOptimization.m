@@ -17,37 +17,105 @@
 %%%%% For testing purposes 
 load('legos.mat'), load('dtbase.mat'), n = 50;
 
-legos_general = legos;
-dtbase_general = dtbase;
-
 a = length(dtbase) - n; % Numbers of legos to remove
-b = floor(a/2);         % Remove through luma optimization
+% b = floor(a/2);         % Remove through luma optimization
+b = 0;
 c = a-b;                % Remove through chroma optimization
 
-% Luma optimization
-L = dtbase(:,1);
+clear a
 
-% The LEGOS, darkest to brightest
-[B,I] = sort(L);            %(L(I) = B)
+%%%%%%%%%% Luma optimization %%%%%%%%%%%
+% Sort the databases from dark to bright
+[dtbase_general, I] = sortrows(dtbase, 1);
+legos_general = legos(1, I);
+
+clear legos dtbase I
 
 % Remove some dark and some bright LEGOS
-dark = floor(b/2);
+dark = floor(b*0.5);
 bright = b-dark;
 
-for
-    % B(i) the value to be removed
-    % L(I(i)) corresponding element in L
-    % I(i) is the entry to be removed from legos and dtbase
+clear b
+
+for i = 1:dark
+   dtbase_general(2, :) = [];      % the darkest one will always be saved
+   legos_general(2) = [];
+end
+
+for i = 1:bright
+   index = length(dtbase_general)-1;  % the brightest one will always be saved
+   dtbase_general(index,:) = [];      
+   legos_general(index) = [];
+end
+
+clear dark bright index
+
+figure
+cols = 10;
+rows = ceil(length(dtbase_general)/cols);
+
+for i = 1:length(dtbase_general)
+    subplot(rows, cols, i)
+    imshow(legos_general{1,i})
+end
+
+clear i cols rows
+
+%%
+%%%%%%%% Chroma optimization %%%%%%%%%
+% Remove the c bricks that are close to each other in color
+
+% make dtbase a matrix instead of vector, so matlab can recognize every
+% entry as a pixel
+
+dtbase_generalM = cat(3, dtbase_general(:,1), dtbase_general(:,2), dtbase_general(:,3));
+ab = dtbase_generalM(:,:,2:3); % only the a and b channels
+ab = im2single(ab);
+nColors = n;
+attempts = 5;   % number of attempts in clustering
+labels = imsegkmeans(ab,nColors,'NumAttempts',attempts);
+
+% remove all the entries that has the same label
+% idx = find(labels == 6);
+
+toRemove = zeros(1,c);
+counter = 1;
+for i = 1:nColors
+    idx = find(labels == i);
+    if length(idx)>1
+       % If more than 2 entries in the database has the same label, store
+       % all indices except one in a vector
+       % Later, remove all these entries from the dtbase
+       for j = 1: length(idx)-1
+           toRemove(counter) = idx(j);
+           counter = counter + 1;
+       end
+    end
+end
+
+clear c counter i idx n nColors attempts j dtbase_generalM labels ab
+
+% now, remove all the entries corresponding to toRemove, from
+% dtbase_general and legos_general
+
+%%
+dtbase_general(toRemove, :) = [];
+legos_general(toRemove) = [];
+
+%%
+figure
+cols = 10;
+rows = ceil(length(dtbase_general)/cols);
+
+for i = 1:length(dtbase_general)
+    subplot(rows, cols, i)
+    imshow(legos_general{1,i})
 end
 
 
-% for i = (length(dtbase_general)-bright):length(dtbase_general)
-%     % B(i) the value to be removed
-%     % L(I(i)) corresponding element in L
-%     % I(i) is the entry to be removed from legos and dtbase
-%     legos_general(I(i)) = [];
-%     dtbase_general(I(i),:) = [];
-% end
+
+
+
 
 
 
@@ -79,9 +147,6 @@ end
 
 
 
-
-% sedan kolla på skillnad i färgkanalerna a och b, endast två variabler,
-% lättare att jämföra
 
 
 
