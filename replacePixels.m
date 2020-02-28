@@ -1,4 +1,4 @@
-function result = replacePixels(img, imgColors, legos, dtbase,)
+function result = replacePixels(img, imgColors, legos, dtbase)
 
 % Takes in an image, list of the colors of the image, a set of legos, a
 % list of the colors of the legos. Gives back an image where every pixel is
@@ -15,20 +15,11 @@ function result = replacePixels(img, imgColors, legos, dtbase,)
 %%%%%%%%%%%%%%%%%%% Out parameters %%%%%%%%%%%%%%%%%%%%
 % result            An image where every pixel is represented by a lego
 
-% load('testImg.mat');
-% load('labval.mat');
-% load('uniqueColors.mat');
-% img = legoImg;
-% dtbase = labval;
-% imgColors = uniqueColors;
-% Example databases
-% imgColors(50,3) = 0;
-
-% deltaE = zeros(1,110);
-% E = zeros(1,50);
-
 dBase = size(dtbase);
 dColors = size(imgColors);
+
+deltaE = zeros(1,dBase(1));
+E = zeros(1,dColors(1));
 
 % Compare the CIELAB value of the rgb-color database and the selected imgColors
 for i = 1:dColors(1)
@@ -37,7 +28,7 @@ for i = 1:dColors(1)
     end
     % Find out the minimum value in the deltaE array and take its index and
     % put it in E.
-    [M,I] = min(deltaE);
+    [~,I] = min(deltaE);
     E(i) = I;
 end
 
@@ -50,12 +41,11 @@ for i = 1:dImg(1)
         color = img(i,j,:);
         idx = find(imgColors==color);
         idxFind = E(idx(1));
-        a = i+30*(i-1);
-        b = j+30*(j-1);
+        a = 1 + 30*(i-1);
+        b = 1 + 30*(j-1);
         result(a:a+29, b:b+29, :) = legos{1,idxFind};
     end
 end
 
-% imshow(result);
 end
 

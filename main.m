@@ -5,11 +5,9 @@
 clear all
 clc
 
-% Read in a reference image, which we will later reproduce
 refImg = imread('refImage.jpg');
-
 result = legofy(refImg);
-imshow(result)
+imshow(result);
 
 
 
