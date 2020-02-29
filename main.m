@@ -5,9 +5,22 @@
 clear all
 clc
 
+% %% Create general database 
+% load('legos');
+% load('dtbase');
+% [legos_general, dtbase_general] = generalOptimization(legos, dtbase, 50)
+
+
+%% Code for creating legofied image
+
 refImg = imread('refImage.jpg');
-result = legofy(refImg);
-imshow(result);
+[legoImg, legoGen] = legofy(refImg);
+
+figure
+subplot(1,2,1)
+imshow(legoImg)
+subplot(1,2,2)
+imshow(legoGen)
 
 
 

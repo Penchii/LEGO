@@ -4,3 +4,25 @@ All the lego bricks in our data base
 02 - remove30withLuma
 The database after we removed the 15 darkest and 15 brightest bricks 
 EXCEPT the very darkest and brightest one
+
+03 - afterChroma
+The database after 30 pixels has also been removed based on chroma channels
+using kmeans
+
+
+This approach bad idead.
+Luma optimization (removing darkest and brightest) if done in big numbers,
+tend to remove important colors. And if done in smaller numbers, focusing on the dark colors, 
+because those were less significant (we didnt seem to be able to tell the difference between 
+the dark pieces so well), then the chroma omptimization done afterwards didnt take note that some pieces were
+dark, and then we lost all the dark ones. 
+ Plus, if we only have gray scale legos, what happens then in the chroma optimization?
+All have the same chroma value... So a black brick will be classified as same as a white brick. 
+
+04 - kmeansOnFullLAB
+This is when kmeans was used on all three channels at once. 
+Then dark pixels are prevailed. And, seem to have better spread of colors too.
+
+05 - image after using the general optimization
+
+06 - image when using no optimization

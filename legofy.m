@@ -1,9 +1,14 @@
-function legoImg = legofy(img)
-% Takes in an image
-% Gives back the same image but recreated with LEGO's
+function [legoImg, legoGen] = legofy(img)
 
-% for testing purpose
-% img = imread('refImage.jpg');
+% Creates lego-versions of an image
+
+%%%%%%%%%%%%%%%%%%% In parameters %%%%%%%%%%%%%%%%%%%%%
+% img               An RGB image of any size
+
+%%%%%%%%%%%%%%%%%%% Out parameters %%%%%%%%%%%%%%%%%%%%
+% legoImg           image reproduced with all 110 legos
+% legoGen           image reproduced with 50 legos from general optimization
+% legoSpec          image reproduced with 50 legos from image dependant optimization
 
 % Downsample the image in case it's too big
 dim = size(img);
@@ -38,23 +43,17 @@ uniqueColors = unique(imgColors, 'rows');
 
 load('legos');
 load('dtbase');
+load('legos_general');
+load('dtbase_general');
 
-%%%%%%%%%%%%%%% OPTIMERING 1 %%%%%%%%%%%%%%%%
-% Allmän optimering
-
-% Or, can do 50 clusters, remove all but 1 in each cluster
-n = 50;
-[legos_general, dtbase_general] = generalOptimization(legos, dtbase, n);
-clear n
-
-%%%%%%%%%%%%%%% OPTIMERING 2 %%%%%%%%%%%%%%%%
-% Optimering beroende på bildens färginnehåll
-% plocka de 50 mest använda legobitarna
+% Optimize the database to best cover the colors in the image
+% Pick the 50 most used legos
+% n = 50;
+% [legos_spec, dtbase_spec] = specOptimization(legos, dtbase, n);
 
 
 % Replace the pixels with legos
 legoImg = replacePixels(img, uniqueColors, legos, dtbase);
-
-
+legoGen = replacePixels(img, uniqueColors, legos_general, dtbase_general);
 
 end
