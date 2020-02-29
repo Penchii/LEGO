@@ -1,4 +1,4 @@
-function result = replacePixels(img, imgColors, legos, dtbase)
+function [result, pixelResult] = replacePixels(img, imgColors, legos, dtbase)
 
 % Takes in an image, list of the colors of the image, a set of legos, a
 % list of the colors of the legos. Gives back an image where every pixel is
@@ -14,6 +14,7 @@ function result = replacePixels(img, imgColors, legos, dtbase)
 
 %%%%%%%%%%%%%%%%%%% Out parameters %%%%%%%%%%%%%%%%%%%%
 % result            An image where every pixel is represented by a lego
+% pixelResult       Same image but instead of a lego it is a pixel in Lab
 
 dBase = size(dtbase);
 dColors = size(imgColors);
@@ -35,17 +36,25 @@ end
 % Replace all the pixels with legos of the correct color
 dImg = size(img);
 result = zeros(dImg(1)*30, dImg(2)*30, 3);
+pixelResult = zeros(dImg(1), dImg(2), 3);
 
 for i = 1:dImg(1)
     for j = 1:dImg(2)
-        color = img(i,j,:);
-        idx = find(imgColors==color);
-        idxFind = E(idx(1));
-        a = 1 + 30*(i-1);
+        color = img(i,j,:);                     % The color of the first pixel in the image
+        idx = find(imgColors==color);           % idx is a list of all the pixels of this color
+                                                % Size of idx gives how many times this specific color occurs
+        idxFind = E(idx(1));                    % This is the closest lego brick for the given pixels
+        a = 1 + 30*(i-1);                   
         b = 1 + 30*(j-1);
         result(a:a+29, b:b+29, :) = legos{1,idxFind};
+        
+        % Only to count how many times each pixel occurs
+        % (outside this function)
+        pixelResult(i,j,:) = dtbase(idxFind, :);
     end
 end
+
+
 
 end
 

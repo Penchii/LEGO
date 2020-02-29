@@ -14,13 +14,15 @@ clc
 %% Code for creating legofied image
 
 refImg = imread('refImage.jpg');
-[legoImg, legoGen] = legofy(refImg);
+[legoImg, legoGen, legoSpec] = legofy(refImg);
 
 figure
-subplot(1,2,1)
+subplot(1,3,1)
 imshow(legoImg)
-subplot(1,2,2)
+subplot(1,3,2)
 imshow(legoGen)
+subplot(1,3,3)
+imshow(legoSpec)
 
 
 

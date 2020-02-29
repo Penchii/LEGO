@@ -26,3 +26,8 @@ Then dark pixels are prevailed. And, seem to have better spread of colors too.
 05 - image after using the general optimization
 
 06 - image when using no optimization
+
+07 - image when taking 50 most used legos in the pic with no optimization. 
+Not good result. Makes sense tho. If big area of image is lets say... blue 
+(maybe sky) and varies between many shades of blue. Then those will get "high points"
+and crucial colors that might not cover a big area of the image, will get removed.
