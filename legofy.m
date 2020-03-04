@@ -46,26 +46,28 @@ load('dtbase');
 load('legos_general');
 load('dtbase_general');
 n = 50;
-dtbase_spec = dtbase;
-legos_spec = legos;
+% dtbase_spec = dtbase;
+% legos_spec = legos;
 
 % Replace the pixels with legos
-[legoImg, pixelResult] = replacePixels(img, uniqueColors, legos, dtbase);
-legoGen = replacePixels(img, uniqueColors, legos_general, dtbase_general);
+[legoImg, pixelResult] = replacePixels(img, uniqueColors, legos, dtbase);       % No optimization
+legoGen = replacePixels(img, uniqueColors, legos_general, dtbase_general);      % General optimization
 
 
-%%%%%%%%%%%%%% DONT USE THIS ONE IT SUCK %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%% IMAGE DEPENDENT OPTIMIZATION %%%%%%%%%%%%%%%%%
 % Optimize the database to best cover the colors in the image
 % Pick the 50 most used legos
-% count the most occuring Lab values in pixelResult
-% label them for easy indexing
-% idx = find(labels == 6); size of idx will give how many pixels has lbl 6
+
 d = size(pixelResult);
 pixelResult = reshape(pixelResult, [d(1)*d(2), 3]);
-for i = 1:length(dtbase)
-    quantity(i) = length(find(pixelResult() == dtbase(i,:)));
-end
+uniquePx = unique(pixelResult, 'rows');             % All unique Lab values found in the image
 
+tot = 0;
+for i = 1:length(uniquePx)
+    quantity(i,:) = histc(pixelResult,uniquePx(i));      % how many times each unique px occurs in the image
+    tot = tot + quantity(i,1);
+end
+tot
 % find the highest 50 numbers in quantity
 % take its corresponding indices
 % save those in dtbase
@@ -76,19 +78,19 @@ end
                                 % quantity(I(i)) gives B(i)
                                 % I(i) is then the index in dtbase
 
-% Create a vector from I with all the indices to be removed
-I2 = I(n+1:length(I));
+% Create a vector from I with all the indices to be saved
+I2 = I(1:n);
 
-dtbase_spec(I2, :) = [];
-legos_spec(I2) = [];
+dtbase_spec = dtbase(I2, :);
+legos_spec = legos(I2);
 
 legoSpec = replacePixels(img, uniqueColors, legos_spec, dtbase_spec);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Or cluster the colors in the image to 50 clusters?
-% Maybe, do kmeans, with the LEGO bricks as seeds
-% First, with all 110 bricks as seeds. Will create 60 clusters too many
-% After few iterations, cluster centers have moved. Keep the brick that are
-% closest to
+%%%%%%%%%%%%%% ALTERNATE APPROACH %%%%%%%%%%%%%%%%%
+% Take the list of colors returned in pixelResult
+% cluster them too by kmeans algorithm
+                                
+                                
+
 
 end
