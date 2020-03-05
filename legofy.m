@@ -1,14 +1,19 @@
-function [legoImg, legoGen, legoSpec] = legofy(img)
+function [legoImg, legoGen, legoSpec] = legofy(img, n, legos, dtbase, legos_general, dtbase_general)
 
 % Creates lego-versions of an image
 
 %%%%%%%%%%%%%%%%%%% In parameters %%%%%%%%%%%%%%%%%%%%%
 % img               An RGB image of any size
+% n                 How many bricks the output should consist of
+% legos             Database of legos
+% dtbase            List of Lab colors in the legos database
+% legos_general     Database of legos that has undergone general optimization
+% dtbase_general    List of Lab colors in legos_general
 
 %%%%%%%%%%%%%%%%%%% Out parameters %%%%%%%%%%%%%%%%%%%%
 % legoImg           image reproduced with all 110 legos
-% legoGen           image reproduced with 50 legos from general optimization
-% legoSpec          image reproduced with 50 legos from image dependant optimization
+% legoGen           image reproduced with n legos from general optimization
+% legoSpec          image reproduced with n legos from image dependant optimization
 
 % Downsample the image in case it's too big
 dim = size(img);
@@ -41,13 +46,10 @@ clear L a b Lab index rows cols chan i j
 % Find all unique colors
 uniqueColors = unique(imgColors, 'rows');
 
-load('legos');
-load('dtbase');
-load('legos_general');
-load('dtbase_general');
-n = 50;
-% dtbase_spec = dtbase;
-% legos_spec = legos;
+% load('legos');
+% load('dtbase');
+% load('legos_general');
+% load('dtbase_general');
 
 % Replace the pixels with legos
 [legoImg, pixelResult] = replacePixels(img, uniqueColors, legos, dtbase);       % No optimization
@@ -56,7 +58,7 @@ legoGen = replacePixels(img, uniqueColors, legos_general, dtbase_general);      
 
 %%%%%%%%%%%%%% IMAGE DEPENDENT OPTIMIZATION %%%%%%%%%%%%%%%%%
 % Optimize the database to best cover the colors in the image
-% Pick the 50 most used legos
+% Pick the n most used legos
 
 d = size(pixelResult);
 pixelResult = reshape(pixelResult, [d(1)*d(2), 3]);
@@ -67,29 +69,46 @@ for i = 1:length(uniquePx)
     quantity(i,:) = histc(pixelResult,uniquePx(i));      % how many times each unique px occurs in the image
     tot = tot + quantity(i,1);
 end
-tot
-% find the highest 50 numbers in quantity
-% take its corresponding indices
-% save those in dtbase
-% remove the others
 
-[B, I] = sort(quantity);        % B is Quantity but sorted
+[B, I] = sort(quantity(:,1,1));        % B is Quantity but sorted
                                 % I is index thing
                                 % quantity(I(i)) gives B(i)
-                                % I(i) is then the index in dtbase
 
 % Create a vector from I with all the indices to be saved
-I2 = I(1:n);
+if (length(I) < n)
+    I2 = I;
+else     
+    I2 = I(length(I)-n+1:length(I));
+end
+dtbase_spec = uniquePx(I2, :);         % This is list of all the most common pixels
 
-dtbase_spec = dtbase(I2, :);
-legos_spec = legos(I2);
+% Convert to RGB
+RGB = lab2rgb(dtbase_spec);
+% Generate lego database
+legos_spec = generateLego(RGB);
 
 legoSpec = replacePixels(img, uniqueColors, legos_spec, dtbase_spec);
 
-%%%%%%%%%%%%%% ALTERNATE APPROACH %%%%%%%%%%%%%%%%%
-% Take the list of colors returned in pixelResult
-% cluster them too by kmeans algorithm
-                                
+% %%%%%%%%%%%%%% KMEANS %%%%%%%%%%%%%%%%%
+% % Take uniquePx
+% % cluster them by kmeans algorithm
+%                                 
+% d = size(pixelResult);
+% pixelResult = reshape(pixelResult, [d(1)*d(2), 3]);
+% 
+% dtbase_spec = unique(pixelResult, 'rows');             % All unique Lab values found in the image
+% 
+% % Convert to RGB
+% RGB = lab2rgb(dtbase_spec);
+% % Generate lego database
+% legos_spec = generateLego(RGB);
+% 
+% if (n<length(dtbase_spec))
+%     [legos_spec, dtbase_spec] = kmeansOptimization(legos_spec, dtbase_spec, n)
+% end
+% legoSpec = replacePixels(img, uniqueColors, legos_spec, dtbase_spec);
+% 
+% clear dtbase_spec legos_spec pixelResult uniqueColors imgColors index
                                 
 
 
